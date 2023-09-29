@@ -15,13 +15,14 @@ app.use((req, res, next)=>{
     next();
 })
 
-app.get('/', (req, res) => {
-    res.send('Hello!');
-})
-
 // Middleware
 app.use(express.json());
 app.use('/api', require('./routes/UserCreate'));
+app.use('/api', require('./routes/DisplayData'));
+
+app.get('/', (req, res) => {
+    res.send('Hello!');
+})
 
 app.listen(port, ()=> {
     console.log(`Server has started! ${port}`);

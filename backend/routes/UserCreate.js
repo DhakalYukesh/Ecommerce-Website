@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const { body, validationResult } = require("express-validator");
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 // Register endpoint
 router.post(
@@ -20,12 +22,16 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
+    // Hashing algorithm
+    const salt = await bcrypt.genSalt(10);
+    let hashed_password = await bcrypt.hash(req.body.password, salt);
+
     try {
       await User.create({
         name: req.body.name,
         location: req.body.location,
         email: req.body.email,
-        password: req.body.password,
+        password: hashed_password,
       });
 
       res.json({ success: true });
@@ -64,13 +70,24 @@ router.post(
           .json({ errors: "Incorrect email! Try again." });
       }
 
-      if (req.body.password !== userData.password) {
+      // Password validation
+      const pwdCompare = await bcrypt.compare(req.body.password, userData.password)
+      if (!pwdCompare) {
         return res
           .status(400)
           .json({ errors: "Incorrect password! Try again." });
       }
 
-      return res.status(200).json({ success: true });
+      // Json web token
+      const data = {
+        user:{
+          id: userData.id
+        }
+      }
+
+      // Token
+      const authToken = jwt.sign(data, process.env.JWT_SECRET)
+      return res.status(200).json({ success: true, authToken: authToken });
     } catch (error) {
       console.log(error);
       res.json({ success: false });

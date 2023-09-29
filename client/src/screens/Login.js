@@ -28,6 +28,9 @@ export default function Login() {
     if (!json.success) {
       alert("Enter valid credentials!");
     } else {
+      // Storing jwt in the local storage.
+      localStorage.setItem("authToken", json.authToken);
+      console.log(localStorage.getItem("authToken"));
       navigate('/');
       alert("Success! The user has been logged in!");
     }
