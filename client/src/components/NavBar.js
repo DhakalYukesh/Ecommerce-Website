@@ -6,7 +6,7 @@ export default function NavBar() {
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
-    navigate("/login")
+    navigate("/")
   }
 
   return (
